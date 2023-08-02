@@ -1,0 +1,7 @@
+1.0.0
+修改de.soderer.utilities.db.DbUtilities类，支持Microsoft SQL-Server数据库
+修改de.soderer.dbexport.worker.DbSqlExportWorker
+修改de.soderer.dbexport.worker.AbstractDbExportWorker
+修改de.soderer.utilities.db.DbUtilities 增加MsSQL支持
+0.0.0
+Unknown version info URL

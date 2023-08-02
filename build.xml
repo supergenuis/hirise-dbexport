@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="build_jar" name="Create all Jars for Project DbExport">
+	<property name="version" value="23.2.0" />
+	<echo message="version: ${version}" />
+	
+	<tstamp>
+		<format property="buildTime" pattern="yyyy-MM-dd HH:mm:ss" locale="en"/>
+	</tstamp>
+	<echo message="buildTime: ${buildTime}" />
+
+	<property name="projectsPath" value="${basedir}" />
+	<echo message="projectsPath: ${projectsPath}" />
+
+	<property name="buildPath" value="build" />
+	<echo message="buildPath: ${buildPath}" />
+	<property name="buildSubDir" value="" />
+	<echo message="buildSubDir: ${buildSubDir}" />
+
+	<target name="build_jar" depends="cleanup_before, create_jar, create_versioninfo, cleanup_after" />
+
+	<target name="cleanup_before">
+		<delete dir="${buildPath}${buildSubDir}" />
+		<delete dir="${buildPath}/bin" />
+		<mkdir dir="${buildPath}/bin" />
+	</target>
+
+	<target name="compile">
+		<path id="build.classpath">
+			<fileset dir="lib">
+				<include name="*.jar" />
+			</fileset>
+		</path>
+
+		<!-- Compile JarInJarLoader -->
+		<javac debug="true" nowarn="true" deprecation="false" destdir="${buildPath}/bin" fork="yes" source="1.8" target="1.8" srcdir="${projectsPath}/src/de/soderer/utilities/jarinjarloader" includeantruntime="false" encoding="UTF-8" />
+
+		<!-- Compile DbExport -->
+		<javac debug="true" nowarn="true" deprecation="false" destdir="${buildPath}/bin" fork="yes" source="1.8" target="1.8" srcdir="${projectsPath}/src" includeantruntime="false" encoding="UTF-8">
+			<classpath refid="build.classpath" />
+		</javac>
+
+		<copy todir="${buildPath}/bin">
+			<fileset dir="src">
+				<include name="**/LanguageProperties*.properties" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="create_versionfile">
+		<delete file="${buildPath}/bin/version.txt" />
+		<echo file="${buildPath}/bin/version.txt" append="false">${version}${line.separator}${buildTime}${line.separator}Unknown version URL</echo>
+	</target>
+
+	<target name="create_jar" depends="compile, create_versionfile">
+		<jar destfile="${buildPath}${buildSubDir}/DbExport-${version}.jar">
+			<manifest>
+				<attribute name="Main-Class" value="de.soderer.DbExport" />
+				<attribute name="Class-Path" value="." />
+				<attribute name="Rsrc-Main-Class" value="de.soderer.dbexport.DbExport" />
+			</manifest>
+
+			<fileset dir="${buildPath}/bin" />
+
+			<zipfileset dir="src" includes="DbExport_Icon.png" />
+			<zipfileset dir="src" includes="DbExport.ico" />
+			<zipfileset excludes="META-INF/*.SF" src="lib/jsqlparser-4.6.jar"/>
+		</jar>
+
+		<jar destfile="${buildPath}${buildSubDir}/DbExport-${version}_sources.jar">
+			<manifest>
+				<attribute name="Main-Class" value="de.soderer.DbExport" />
+				<attribute name="Class-Path" value="." />
+				<attribute name="Rsrc-Main-Class" value="de.soderer.dbexport.DbExport" />
+			</manifest>
+
+		    <fileset dir="src" includes="**/*.java" />
+		</jar>
+
+		<tstamp>
+			<format property="buildTime" pattern="yyyy/MM/dd hh:mm:ss" offset="-5" unit="hour" />
+		</tstamp>
+		<checksum file="${buildPath}${buildSubDir}/DbExport-${version}.jar" property="checksumMD5" />
+	</target>
+
+	<target name="create_versioninfo">
+	</target>
+
+	<target name="cleanup_after">
+		<delete dir="${buildPath}/bin" />
+	</target>
+</project>
